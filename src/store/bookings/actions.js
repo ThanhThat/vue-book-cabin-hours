@@ -111,5 +111,19 @@ export default {
       console.log('error: ', error)
       throw new Error(error.message)
     }
+  },
+
+  async deleteOne(payload) {
+    const { id, session, pos } = payload
+
+    const index = this.bookingList.findIndex((booking) => booking.id === id)
+
+    this.bookingList[index][session].splice(pos, 1)
+
+    const response = await bookingsApi.update({ id, [session]: this.bookingList[index][session] })
+
+    if (response.status !== 200) {
+      console.log(response.message)
+    }
   }
 }

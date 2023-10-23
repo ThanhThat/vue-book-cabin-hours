@@ -11,6 +11,11 @@ const bookingsApi = {
   update(data) {
     const url = `/${SCHEMA}/${data.id}.json`
     return axiosClient.patch(url, data)
+  },
+
+  deleteOne(data) {
+    const url = `/${SCHEMA}/${data.id}.json`
+    return axiosClient.delete(url, data)
   }
 }
 

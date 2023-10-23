@@ -91,11 +91,17 @@
                     v-if="!currentDay"
                   >
                     <li
-                      class="list-group-item bg-dark p-1 text-white"
+                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                       v-for="(booking, index) in day['morning']"
                       :key="index"
                     >
-                      {{ booking }}
+                      <span>{{ booking }}</span>
+                      <span
+                        class="trash-teacher"
+                        @click="deleteSlotCabin(day.id, 'morning', index)"
+                      >
+                        <i class="fa-solid fa-trash-can"></i>
+                      </span>
                     </li>
                   </ul>
                   <form
@@ -135,7 +141,7 @@
                     class="card-header bg-black text-white d-flex justify-content-between align-items-center"
                   >
                     <a
-                      class="session"
+                      class="session flex-grow-1"
                       data-bs-toggle="collapse"
                       :href="`#day-noon-${index}`"
                       role="button"
@@ -149,7 +155,7 @@
                       <a
                         class="text-light"
                         data-bs-toggle="collapse"
-                        :href="`#day-morning-${index}`"
+                        :href="`#day-noon-${index}`"
                         @click="setCurrentDay(day.date)"
                       >
                         <i class="fa-solid fa-pen-to-square"></i
@@ -177,11 +183,15 @@
                     v-if="!currentDay"
                   >
                     <li
-                      class="list-group-item bg-dark p-1 text-white"
+                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                       v-for="(booking, index) in day['noon']"
                       :key="index"
                     >
-                      {{ booking }}
+                      <span> {{ booking }}</span>
+
+                      <span class="trash-teacher" @click="deleteSlotCabin(day.id, 'noon', index)">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </span>
                     </li>
                   </ul>
                   <form
@@ -222,7 +232,7 @@
                     @click="showHideDetailBooking"
                   >
                     <a
-                      class="session"
+                      class="session flex-grow-1"
                       data-bs-toggle="collapse"
                       :href="`#day-afternoon-${index}`"
                       role="button"
@@ -264,11 +274,18 @@
                     v-if="!currentDay"
                   >
                     <li
-                      class="list-group-item bg-dark p-1 text-white"
+                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                       v-for="(booking, index) in day['afternoon']"
                       :key="index"
                     >
-                      {{ booking }}
+                      <span> {{ booking }}</span>
+
+                      <span
+                        class="trash-teacher"
+                        @click="deleteSlotCabin(day.id, 'afternoon', index)"
+                      >
+                        <i class="fa-solid fa-trash-can"></i>
+                      </span>
                     </li>
                   </ul>
                   <form
@@ -504,6 +521,11 @@ export default {
       this.clearTimer()
       this.toastTime = 11
       this.isShowToast = false
+    },
+
+    deleteSlotCabin(id, session, pos) {
+      const payload = { id, session, pos }
+      this.bookingsStore.deleteOne(payload)
     }
   }
 }
@@ -577,6 +599,20 @@ export default {
 
   input {
     border: none;
+  }
+}
+
+.trash-teacher {
+  color: #000;
+  font-size: 16px;
+
+  i {
+    transition: all 0.25s ease-out;
+  }
+
+  i:hover {
+    color: #fff;
+    transform: scale(1.2);
   }
 }
 </style>
