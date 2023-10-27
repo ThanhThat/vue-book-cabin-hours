@@ -10,6 +10,45 @@
       </template>
     </base-modal>
 
+    <base-modal
+      title="Đăng ký học cabin"
+      :isShow="isShowModalAddBooking2"
+      @close-modal-add-booking="closeModalAddBooking"
+    >
+      <template #body>
+        <form @submit.prevent="addBooking2">
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="floatingInput"
+              placeholder="Tên giáo viên"
+              v-model="nameTeacher"
+              required
+            />
+            <label for="floatingInput" class="text-black">Giáo viên</label>
+          </div>
+          <div class="mb-3">
+            <h6>Số lượng</h6>
+            <select
+              class="form-select"
+              aria-label="Default select example"
+              v-model="quantity"
+              required
+            >
+              <option selected value="" disabled>Bấm vào đây để chọn số lượng</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary">Add</button>
+        </form>
+      </template>
+    </base-modal>
+
     <base-toast
       :show="isShowToast"
       :title="toastTitle"
@@ -27,6 +66,7 @@
             :current-year="currentYear"
             @select-month="selectMonth"
             @open="openModalAddBooking"
+            @filter="filterBooking"
           ></calendar-filter>
         </header>
       </div>
@@ -45,7 +85,18 @@
               </header>
 
               <section v-show="day" class="booking-list" @click="showModalBooking">
-                <div class="card mb-3">
+                <div
+                  class="card mb-3"
+                  v-show="
+                    this.mode === 'had' && day?.morning?.length > 0
+                      ? true
+                      : this.mode === 'empty' && !day?.morning?.length
+                      ? true
+                      : this.mode === 'all'
+                      ? true
+                      : false
+                  "
+                >
                   <div
                     class="card-header bg-black text-white d-flex justify-content-between align-items-center"
                   >
@@ -59,12 +110,19 @@
                     >
                       Sáng
                     </a>
-                    <div class="card-header-controls me-1">
+                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <a
+                        class="text-light"
+                        v-if="!day?.morning || day?.morning?.length < 4"
+                        @click="showModalAddBooking2('morning', day.id || listDayOfMonth[index])"
+                      >
+                        <i class="fa-solid fa-plus"></i>
+                      </a>
                       <a
                         class="text-light"
                         data-bs-toggle="collapse"
                         :href="`#day-morning-${index}`"
-                        @click="setCurrentDay(day.date)"
+                        @click="setCurrentDayAndSession(day.date, 'morning')"
                       >
                         <i class="fa-solid fa-pen-to-square"></i
                       ></a>
@@ -110,6 +168,7 @@
                       day.date &&
                       day.date.length >= 0 &&
                       currentDay === day.date.slice(0, 2) &&
+                      currentSession === 'morning' &&
                       day['morning']?.length > 0
                     "
                   >
@@ -136,7 +195,18 @@
                   </form>
                 </div>
 
-                <div class="card mb-3">
+                <div
+                  class="card mb-3"
+                  v-show="
+                    this.mode === 'had' && day?.noon?.length > 0
+                      ? true
+                      : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
+                      ? true
+                      : this.mode === 'all'
+                      ? true
+                      : false
+                  "
+                >
                   <div
                     class="card-header bg-black text-white d-flex justify-content-between align-items-center"
                   >
@@ -151,12 +221,19 @@
                       Trưa
                     </a>
 
-                    <div class="card-header-controls me-1">
+                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <a
+                        class="text-light"
+                        v-if="!day?.noon || day?.noon?.length < 4"
+                        @click="showModalAddBooking2('noon', day.id || listDayOfMonth[index])"
+                      >
+                        <i class="fa-solid fa-plus"></i>
+                      </a>
                       <a
                         class="text-light"
                         data-bs-toggle="collapse"
                         :href="`#day-noon-${index}`"
-                        @click="setCurrentDay(day.date)"
+                        @click="setCurrentDayAndSession(day.date, 'noon')"
                       >
                         <i class="fa-solid fa-pen-to-square"></i
                       ></a>
@@ -200,6 +277,7 @@
                       day.date &&
                       day.date.length >= 0 &&
                       currentDay === day.date.slice(0, 2) &&
+                      currentSession === 'noon' &&
                       day['noon']?.length > 0
                     "
                   >
@@ -226,7 +304,19 @@
                   </form>
                 </div>
 
-                <div class="card mb-1">
+                <div
+                  class="card mb-1"
+                  v-show="
+                    this.mode === 'had' && day?.afternoon?.length > 0
+                      ? true
+                      : this.mode === 'empty' &&
+                        (!day?.afternoon?.length || day?.afternoon?.length < 4)
+                      ? true
+                      : this.mode === 'all'
+                      ? true
+                      : false
+                  "
+                >
                   <div
                     class="card-header bg-black text-white d-flex justify-content-between align-items-center"
                     @click="showHideDetailBooking"
@@ -242,12 +332,19 @@
                       Chiều
                     </a>
 
-                    <div class="card-header-controls me-1">
+                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <a
+                        class="text-light"
+                        v-if="!day?.afternoon || day?.afternoon?.length < 4"
+                        @click="showModalAddBooking2('afternoon', day.id || listDayOfMonth[index])"
+                      >
+                        <i class="fa-solid fa-plus"></i>
+                      </a>
                       <a
                         class="text-light"
                         data-bs-toggle="collapse"
                         :href="`#day-morning-${index}`"
-                        @click="setCurrentDay(day.date)"
+                        @click="setCurrentDayAndSession(day.date, 'afternoon')"
                       >
                         <i class="fa-solid fa-pen-to-square"></i
                       ></a>
@@ -294,6 +391,7 @@
                       day.date &&
                       day.date.length >= 0 &&
                       currentDay === day.date.slice(0, 2) &&
+                      currentSession === 'afternoon' &&
                       day['afternoon']?.length > 0
                     "
                   >
@@ -348,18 +446,25 @@ export default {
 
   data() {
     return {
+      currentId: null,
       months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       currentMonth: null,
       currentYear: null,
       daySelected: {},
       isShowModalAddBooking: false,
+      isShowModalAddBooking2: false,
       currentDay: null,
+      currentSession: null,
       isShowToast: false,
       toastTitle: '',
       toastDesc: '',
       toastStatus: false,
       toastTime: 11,
-      downloadTimer: null
+      downloadTimer: null,
+      mode: 'all',
+      listDay: [],
+      nameTeacher: '',
+      quantity: null
     }
   },
 
@@ -385,13 +490,14 @@ export default {
     },
 
     listDayOfMonth() {
-      const listDay = []
+      const listDayCopy = []
       for (let i = 1; i <= this.endDayOfMonth; i++) {
         let day = i.toString()
 
         if (i < 10) {
           day = 0 + day
         }
+
         const date = formatDate(`${this.currentYear}-${this.currentMonth}-${day}`)
 
         const booking = this.bookingsStore.bookingList.find((booking) => {
@@ -399,15 +505,15 @@ export default {
         })
 
         if (!booking) {
-          listDay.push(i)
+          listDayCopy.push(i)
         } else {
-          listDay.push(booking)
+          listDayCopy.push(booking)
         }
       }
 
       if (this.startDayOfMonth > 0) {
         for (let i = 0; i < this.startDayOfMonth; i++) {
-          listDay.unshift('')
+          listDayCopy.unshift('')
         }
       }
 
@@ -415,11 +521,12 @@ export default {
 
       if (endDay < 6) {
         for (let i = 0; i < 6 - endDay; i++) {
-          listDay.push('')
+          listDayCopy.push('')
         }
       }
 
-      return listDay
+      console.log(listDayCopy)
+      return listDayCopy
     }
   },
 
@@ -442,6 +549,9 @@ export default {
 
     closeModalAddBooking() {
       this.isShowModalAddBooking = false
+      this.isShowModalAddBooking2 = false
+      this.currentId = null
+      this.currentSession = null
     },
 
     async addBooking(bookingData) {
@@ -459,6 +569,27 @@ export default {
       this.isShowToast = true
       this.timer()
       this.toastTime = 11
+    },
+
+    async showModalAddBooking2(session, id) {
+      this.currentId = id
+      this.currentSession = session
+
+      this.isShowModalAddBooking2 = true
+    },
+
+    async addBooking2() {
+      const bookingData = {
+        id: this.currentId,
+        month: this.currentMonth,
+        year: this.currentYear,
+        session: this.currentSession,
+        teacher: this.nameTeacher,
+        quantity: this.quantity
+      }
+
+      console.log(bookingData)
+      this.bookingsStore.addBooking2(bookingData)
     },
 
     loadBookingList() {
@@ -483,6 +614,7 @@ export default {
         this.toastDesc = 'Cập nhật thành công!'
         this.toastStatus = true
         this.currentDay = null
+        this.currentSession = null
       } catch (error) {
         this.toastTitle = 'Thất bại'
         this.toastDesc = error.message || 'Lỗi cập nhật!'
@@ -494,8 +626,9 @@ export default {
       this.toastTime = 11
     },
 
-    setCurrentDay(date) {
+    setCurrentDayAndSession(date, session) {
       this.currentDay = date?.slice(0, 2)
+      this.currentSession = session
       this.clearTimer()
       this.isShowToast = false
     },
@@ -526,6 +659,10 @@ export default {
     deleteSlotCabin(id, session, pos) {
       const payload = { id, session, pos }
       this.bookingsStore.deleteOne(payload)
+    },
+
+    filterBooking(mode) {
+      this.mode = mode
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <!-- Example split danger button -->
   <div class="row">
-    <div class="col">
+    <div class="col d-flex gap-2">
       <div class="btn-group">
         <button type="button" class="btn btn-dark border-1 border-white">
           Tháng {{ currentMonth }}
@@ -28,6 +28,22 @@
       </div>
 
       <button class="btn btn-dark border-1 border-white" @click="openModalAddBooking()">Add</button>
+
+      <div class="dropdown">
+        <button
+          class="btn btn-dark border-1 border-white dropdown-toggle"
+          type="button"
+          data-toggle="dropdown"
+          data-bs-toggle="dropdown"
+        >
+          Hiển Thị {{ displayFilter }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="btn w-100" href="#" @click="filterMode('all')">Tất cả</a></li>
+          <li><a class="btn w-100" href="#" @click="filterMode('empty')">Trống</a></li>
+          <li><a class="btn w-100" href="#" @click="filterMode('had')">Đã đặt</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -48,10 +64,20 @@ export default {
 
   data() {
     return {
-      months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      filterVal: 'all'
     }
   },
 
+  computed: {
+    displayFilter() {
+      if (this.filterVal === 'all') return 'Tất cả'
+      if (this.filterVal === 'empty') return 'Trống'
+      if (this.filterVal === 'had') return 'Đã đặt'
+
+      return ''
+    }
+  },
   methods: {
     chooseMonth(month) {
       this.$emit('selectMonth', month)
@@ -59,6 +85,11 @@ export default {
 
     openModalAddBooking() {
       this.$emit('open')
+    },
+
+    filterMode(mode) {
+      this.filterVal = mode
+      this.$emit('filter', mode)
     }
   }
 }

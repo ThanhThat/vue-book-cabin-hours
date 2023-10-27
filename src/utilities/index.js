@@ -6,3 +6,11 @@ export const formatDate = (input) => {
 
   return day + '-' + month + '-' + year
 }
+
+export const generateDate = (day, month, year) => {
+  if (day < 10) {
+    return '0' + day + '-' + month + '-' + year
+  }
+
+  return day + '-' + month + '-' + year
+}

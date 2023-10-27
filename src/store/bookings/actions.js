@@ -1,5 +1,5 @@
 import bookingsApi from '../../apis/models/bookingsApi'
-import { formatDate } from '../../utilities'
+import { formatDate, generateDate } from '../../utilities'
 
 export default {
   async addBooking(payload) {
@@ -66,6 +66,65 @@ export default {
       console.log(response)
 
       this.bookingList.push(bookingData)
+    }
+  },
+
+  async addBooking2(payload) {
+    const { id, month, year, session, teacher, quantity } = payload
+    let bookingItem = this.bookingList.find((item) => item.id === id)
+    let slotEmpty = 4
+
+    if (bookingItem) {
+      const slotHad = bookingItem[session]?.length || 0
+      slotEmpty -= slotHad
+
+      if (slotEmpty < quantity) {
+        const error = new Error(
+          `Chỉ còn trống ${slotEmpty} mà bạn đặt tới ${quantity} máy, vui lòng tính toán lại nhé!`
+        )
+        throw error
+      }
+
+      if (!bookingItem[session]) {
+        bookingItem[session] = []
+      }
+
+      for (let i = 0; i < quantity; i++) {
+        bookingItem[session].push(teacher)
+      }
+
+      console.log(bookingItem)
+
+      const response = await bookingsApi.update(bookingItem)
+
+      if (response.status !== 200) {
+        const error = new Error(response.message || 'Đặt lịch không thành công!')
+        throw error
+      }
+    }
+
+    if (!bookingItem) {
+      const generateId = generateDate(id, month, year)
+      bookingItem = {
+        id: generateId,
+        date: generateId,
+        [session]: []
+      }
+
+      for (let i = 0; i < quantity; i++) {
+        bookingItem[session].push(teacher)
+      }
+
+      console.log(bookingItem)
+
+      this.bookingList.push(bookingItem)
+
+      const response = await bookingsApi.update(bookingItem)
+
+      if (response.status !== 200) {
+        const error = new Error(response.message || 'Thêm không thành công!')
+        throw error
+      }
     }
   },
 
