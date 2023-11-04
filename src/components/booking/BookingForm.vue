@@ -34,7 +34,7 @@
         <option selected value="" disabled>Bấm vào đây để chọn buổi</option>
         <option value="morning">Buổi sáng (7h - 10h)</option>
         <option value="noon">Buổi Trưa (10h30 - 13h30)</option>
-        <option value="afternoon">Buổi tối (14h - 17h)</option>
+        <option value="afternoon">Buổi Chiều (14h - 17h)</option>
       </select>
     </div>
 

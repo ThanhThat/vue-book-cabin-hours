@@ -1,15 +1,9 @@
 <template>
-  <div id="app" class="pt-3 bg-dark"><calendar-month></calendar-month></div>
+  <router-view> </router-view>
 </template>
 
 <script>
-import CalendarMonth from './pages/calendar/CalendarMonth.vue'
-
-export default {
-  components: {
-    CalendarMonth
-  }
-}
+export default {}
 </script>
 
 <style lang="scss">

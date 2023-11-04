@@ -11,13 +11,13 @@ export default {
   data() {
     return {
       days: [
-        { id: 0, day: 'Chủ nhật' },
-        { id: 1, day: 'Thứ hai' },
-        { id: 2, day: 'Thứ ba' },
-        { id: 3, day: 'Thứ tư' },
-        { id: 4, day: 'Thứ năm' },
-        { id: 5, day: 'Thứ sáu' },
-        { id: 6, day: 'Thứ bảy' }
+        { id: 0, day: 'Thứ hai' },
+        { id: 1, day: 'Thứ ba' },
+        { id: 2, day: 'Thứ tư' },
+        { id: 3, day: 'Thứ năm' },
+        { id: 4, day: 'Thứ sáu' },
+        { id: 5, day: 'Thứ bảy' },
+        { id: 6, day: 'Chủ nhật' }
       ]
     }
   }

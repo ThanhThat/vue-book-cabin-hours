@@ -1,5 +1,6 @@
 <template>
   <section class="container calendar">
+    <!-- add book cabin 1 -->
     <base-modal
       title="Đăng ký học cabin"
       :isShow="isShowModalAddBooking"
@@ -10,45 +11,18 @@
       </template>
     </base-modal>
 
+    <!-- add book cabin 2 -->
     <base-modal
       title="Đăng ký học cabin"
       :isShow="isShowModalAddBooking2"
       @close-modal-add-booking="closeModalAddBooking"
     >
       <template #body>
-        <form @submit.prevent="addBooking2">
-          <div class="form-floating mb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="floatingInput"
-              placeholder="Tên giáo viên"
-              v-model="nameTeacher"
-              required
-            />
-            <label for="floatingInput" class="text-black">Giáo viên</label>
-          </div>
-          <div class="mb-3">
-            <h6>Số lượng</h6>
-            <select
-              class="form-select"
-              aria-label="Default select example"
-              v-model="quantity"
-              required
-            >
-              <option selected value="" disabled>Bấm vào đây để chọn số lượng</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <button class="btn btn-primary">Add</button>
-        </form>
+        <booking-form-two-field @add-booking="addBooking2"></booking-form-two-field>
       </template>
     </base-modal>
 
+    <!-- Toast message -->
     <base-toast
       :show="isShowToast"
       :title="toastTitle"
@@ -90,7 +64,7 @@
                   v-show="
                     this.mode === 'had' && day?.morning?.length > 0
                       ? true
-                      : this.mode === 'empty' && !day?.morning?.length
+                      : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
                       ? true
                       : this.mode === 'all'
                       ? true
@@ -429,19 +403,22 @@
 <script>
 import { mapStores } from 'pinia'
 import useBookingsStore from '@/store/bookings'
+import useAuthStore from '@/store/bookings'
 import { formatDate } from '@/utilities'
 
 import CalendarFilter from '../../components/calendar/CalendarFilter.vue'
 import CalendarWeek from '../../components/calendar/CalendarWeek.vue'
 import CalendarDayItem from '../../components/calendar/CalendarDayItem.vue'
 import BookingForm from '../../components/booking/BookingForm.vue'
+import BookingFormTwoField from '../../components/booking/BookingFormTwoField.vue'
 
 export default {
   components: {
     CalendarFilter,
     CalendarWeek,
     CalendarDayItem,
-    BookingForm
+    BookingForm,
+    BookingFormTwoField
   },
 
   data() {
@@ -462,9 +439,7 @@ export default {
       toastTime: 11,
       downloadTimer: null,
       mode: 'all',
-      listDay: [],
-      nameTeacher: '',
-      quantity: null
+      listDay: []
     }
   },
 
@@ -475,7 +450,7 @@ export default {
   },
 
   computed: {
-    ...mapStores(useBookingsStore),
+    ...mapStores(useBookingsStore, useAuthStore),
 
     endDayOfMonth() {
       return new Date(this.currentYear, this.currentMonth, 0).getDate()
@@ -511,8 +486,12 @@ export default {
         }
       }
 
-      if (this.startDayOfMonth > 0) {
-        for (let i = 0; i < this.startDayOfMonth; i++) {
+      if (this.startDayOfMonth === 0) {
+        for (let i = 0; i < 6; i++) {
+          listDayCopy.unshift('')
+        }
+      } else if (this.startDayOfMonth > 0) {
+        for (let i = 0; i < this.startDayOfMonth - 1; i++) {
           listDayCopy.unshift('')
         }
       }
@@ -578,14 +557,14 @@ export default {
       this.isShowModalAddBooking2 = true
     },
 
-    async addBooking2() {
+    async addBooking2(formData) {
       const bookingData = {
         id: this.currentId,
         month: this.currentMonth,
         year: this.currentYear,
         session: this.currentSession,
-        teacher: this.nameTeacher,
-        quantity: this.quantity
+        teacher: formData.teacher,
+        quantity: formData.quantity
       }
 
       console.log(bookingData)
@@ -750,6 +729,16 @@ export default {
   i:hover {
     color: #fff;
     transform: scale(1.2);
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.4s linear;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="addBooking2">
+  <form @submit.prevent="addBooking">
     <div class="form-floating mb-3">
       <input
         type="text"
@@ -26,6 +26,27 @@
   </form>
 </template>
 
-<script></script>
+<script>
+export default {
+  data() {
+    return {
+      nameTeacher: '',
+      quantity: null
+    }
+  },
+
+  emits: ['addBooking'],
+
+  methods: {
+    addBooking() {
+      const dataBook = {
+        teacher: this.nameTeacher,
+        quantity: this.quantity
+      }
+      this.$emit('addBooking', dataBook)
+    }
+  }
+}
+</script>
 
 <style lang="scss" scoped></style>
