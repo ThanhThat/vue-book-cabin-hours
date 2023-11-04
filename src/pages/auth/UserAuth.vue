@@ -48,7 +48,7 @@ export default {
       try {
         await this.authStore.login(dataLogin)
         this.handleError()
-        this.$router.push({ name: 'calendar' })
+        this.$router.push('/')
       } catch (error) {
         // alert(error.message)
         console.log(error)
