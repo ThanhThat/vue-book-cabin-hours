@@ -41,6 +41,7 @@
             @select-month="selectMonth"
             @open="openModalAddBooking"
             @filter="filterBooking"
+            @refresh="refreshBookList"
           ></calendar-filter>
         </header>
       </div>
@@ -48,349 +49,358 @@
     <div class="row">
       <div class="col">
         <section class="calendar-content mt-3 bg-dark">
-          <calendar-week mb-0></calendar-week>
+          <calendar-week></calendar-week>
           <ul class="calendar-day-list mt-0">
-            <calendar-day-item v-for="(day, index) in listDayOfMonth" :key="index">
-              <header class="header-day-item d-flex justify-content-end align-items-center mt-1">
-                <span :class="{ 'day-item': day }" v-if="typeof day === 'object'">{{
-                  day.date.slice(0, 2)
-                }}</span>
-                <span :class="{ 'day-item': day }" v-else>{{ day }}</span>
-              </header>
+            <calendar-day-item
+              v-for="(day, index) in listDayOfMonth"
+              :key="index"
+              :class="{ 'd-flex justify-content-center align-items-center': isLoading }"
+            >
+              <base-spinner v-if="isLoading"></base-spinner>
+              <section v-else>
+                <header class="header-day-item d-flex justify-content-end align-items-center mt-1">
+                  <span :class="{ 'day-item': day }" v-if="typeof day === 'object'">{{
+                    day.date.slice(0, 2)
+                  }}</span>
+                  <span :class="{ 'day-item': day }" v-else>{{ day }}</span>
+                </header>
 
-              <section v-show="day" class="booking-list" @click="showModalBooking">
-                <div
-                  class="card mb-3"
-                  v-show="
-                    this.mode === 'had' && day?.morning?.length > 0
-                      ? true
-                      : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
-                      ? true
-                      : this.mode === 'all'
-                      ? true
-                      : false
-                  "
-                >
+                <section v-show="day" class="booking-list" @click="showModalBooking">
                   <div
-                    class="card-header bg-black text-white d-flex justify-content-between align-items-center"
-                  >
-                    <a
-                      class="session flex-grow-1"
-                      data-bs-toggle="collapse"
-                      :href="`#day-morning-${index}`"
-                      role="button"
-                      aria-expanded="false"
-                      aria-controls="collapseExample"
-                    >
-                      Sáng
-                    </a>
-                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
-                      <a
-                        class="text-light"
-                        v-if="!day?.morning || day?.morning?.length < 4"
-                        @click="showModalAddBooking2('morning', day.id || listDayOfMonth[index])"
-                      >
-                        <i class="fa-solid fa-plus"></i>
-                      </a>
-                      <a
-                        class="text-light"
-                        data-bs-toggle="collapse"
-                        :href="`#day-morning-${index}`"
-                        @click="setCurrentDayAndSession(day.date, 'morning')"
-                      >
-                        <i class="fa-solid fa-pen-to-square"></i
-                      ></a>
-                    </div>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
-                      v-if="day.morning?.length > 0"
-                    >
-                      {{ day.morning.length }}
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
-                      v-else
-                    >
-                      0
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
-                  </div>
-
-                  <ul
-                    class="list-group list-group-flush collapse"
-                    :id="`day-morning-${index}`"
-                    v-if="!currentDay"
-                  >
-                    <li
-                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
-                      v-for="(booking, index) in day['morning']"
-                      :key="index"
-                    >
-                      <span>{{ booking }}</span>
-                      <span
-                        class="trash-teacher"
-                        @click="deleteSlotCabin(day.id, 'morning', index)"
-                      >
-                        <i class="fa-solid fa-trash-can"></i>
-                      </span>
-                    </li>
-                  </ul>
-                  <form
-                    @submit.prevent="changeTeacher(day.id, 'morning')"
-                    v-else-if="
-                      day.date &&
-                      day.date.length >= 0 &&
-                      currentDay === day.date.slice(0, 2) &&
-                      currentSession === 'morning' &&
-                      day['morning']?.length > 0
+                    class="card mb-3"
+                    v-show="
+                      this.mode === 'had' && day?.morning?.length > 0
+                        ? true
+                        : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
+                        ? true
+                        : this.mode === 'all'
+                        ? true
+                        : false
                     "
                   >
-                    <ul class="list-group list-group-flush">
+                    <div
+                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                    >
+                      <a
+                        class="session flex-grow-1"
+                        data-bs-toggle="collapse"
+                        :href="`#day-morning-${index}`"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="collapseExample"
+                      >
+                        Sáng
+                      </a>
+                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                        <a
+                          class="text-light"
+                          v-if="!day?.morning || day?.morning?.length < 4"
+                          @click="showModalAddBooking2('morning', day.id || listDayOfMonth[index])"
+                        >
+                          <i class="fa-solid fa-plus"></i>
+                        </a>
+                        <a
+                          class="text-light"
+                          data-bs-toggle="collapse"
+                          :href="`#day-morning-${index}`"
+                          @click="setCurrentDayAndSession(day.date, 'morning')"
+                        >
+                          <i class="fa-solid fa-pen-to-square"></i
+                        ></a>
+                      </div>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
+                        v-if="day.morning?.length > 0"
+                      >
+                        {{ day.morning.length }}
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
+                        v-else
+                      >
+                        0
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                    </div>
+
+                    <ul
+                      class="list-group list-group-flush collapse"
+                      :id="`day-morning-${index}`"
+                      v-if="!currentDay"
+                    >
                       <li
-                        class="list-group-item bg-dark p-0"
+                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['morning']"
                         :key="index"
                       >
-                        <input
-                          type="text"
-                          class="form-control bg-transparent text-white p-1"
-                          :value="booking"
-                          :ref="`morning-${day.id}`"
-                          required
-                        />
+                        <span>{{ booking }}</span>
+                        <span
+                          class="trash-teacher"
+                          @click="deleteSlotCabin(day.id, 'morning', index)"
+                        >
+                          <i class="fa-solid fa-trash-can"></i>
+                        </span>
                       </li>
                     </ul>
-                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
-
-                    <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
-                      Cancel
-                    </button>
-                  </form>
-                </div>
-
-                <div
-                  class="card mb-3"
-                  v-show="
-                    this.mode === 'had' && day?.noon?.length > 0
-                      ? true
-                      : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
-                      ? true
-                      : this.mode === 'all'
-                      ? true
-                      : false
-                  "
-                >
-                  <div
-                    class="card-header bg-black text-white d-flex justify-content-between align-items-center"
-                  >
-                    <a
-                      class="session flex-grow-1"
-                      data-bs-toggle="collapse"
-                      :href="`#day-noon-${index}`"
-                      role="button"
-                      aria-expanded="false"
-                      aria-controls="collapseExample"
+                    <form
+                      @submit.prevent="changeTeacher(day.id, 'morning')"
+                      v-else-if="
+                        day.date &&
+                        day.date.length >= 0 &&
+                        currentDay === day.date.slice(0, 2) &&
+                        currentSession === 'morning' &&
+                        day['morning']?.length > 0
+                      "
                     >
-                      Trưa
-                    </a>
+                      <ul class="list-group list-group-flush">
+                        <li
+                          class="list-group-item bg-dark p-0"
+                          v-for="(booking, index) in day['morning']"
+                          :key="index"
+                        >
+                          <input
+                            type="text"
+                            class="form-control bg-transparent text-white p-1"
+                            :value="booking"
+                            :ref="`morning-${day.id}`"
+                            required
+                          />
+                        </li>
+                      </ul>
+                      <button type="submit" class="btn btn-primary btn-sm">OK</button>
 
-                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
-                      <a
-                        class="text-light"
-                        v-if="!day?.noon || day?.noon?.length < 4"
-                        @click="showModalAddBooking2('noon', day.id || listDayOfMonth[index])"
-                      >
-                        <i class="fa-solid fa-plus"></i>
-                      </a>
-                      <a
-                        class="text-light"
-                        data-bs-toggle="collapse"
-                        :href="`#day-noon-${index}`"
-                        @click="setCurrentDayAndSession(day.date, 'noon')"
-                      >
-                        <i class="fa-solid fa-pen-to-square"></i
-                      ></a>
-                    </div>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
-                      v-if="day.noon?.length > 0"
-                    >
-                      {{ day?.noon?.length }}
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
-                      v-else
-                    >
-                      0
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
+                      <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
+                        Cancel
+                      </button>
+                    </form>
                   </div>
 
-                  <ul
-                    class="list-group list-group-flush collapse"
-                    :id="`day-noon-${index}`"
-                    v-if="!currentDay"
-                  >
-                    <li
-                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
-                      v-for="(booking, index) in day['noon']"
-                      :key="index"
-                    >
-                      <span> {{ booking }}</span>
-
-                      <span class="trash-teacher" @click="deleteSlotCabin(day.id, 'noon', index)">
-                        <i class="fa-solid fa-trash-can"></i>
-                      </span>
-                    </li>
-                  </ul>
-                  <form
-                    @submit.prevent="changeTeacher(day.id, 'noon')"
-                    v-else-if="
-                      day.date &&
-                      day.date.length >= 0 &&
-                      currentDay === day.date.slice(0, 2) &&
-                      currentSession === 'noon' &&
-                      day['noon']?.length > 0
+                  <div
+                    class="card mb-3"
+                    v-show="
+                      this.mode === 'had' && day?.noon?.length > 0
+                        ? true
+                        : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
+                        ? true
+                        : this.mode === 'all'
+                        ? true
+                        : false
                     "
                   >
-                    <ul class="list-group list-group-flush">
+                    <div
+                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                    >
+                      <a
+                        class="session flex-grow-1"
+                        data-bs-toggle="collapse"
+                        :href="`#day-noon-${index}`"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="collapseExample"
+                      >
+                        Trưa
+                      </a>
+
+                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                        <a
+                          class="text-light"
+                          v-if="!day?.noon || day?.noon?.length < 4"
+                          @click="showModalAddBooking2('noon', day.id || listDayOfMonth[index])"
+                        >
+                          <i class="fa-solid fa-plus"></i>
+                        </a>
+                        <a
+                          class="text-light"
+                          data-bs-toggle="collapse"
+                          :href="`#day-noon-${index}`"
+                          @click="setCurrentDayAndSession(day.date, 'noon')"
+                        >
+                          <i class="fa-solid fa-pen-to-square"></i
+                        ></a>
+                      </div>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
+                        v-if="day.noon?.length > 0"
+                      >
+                        {{ day?.noon?.length }}
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
+                        v-else
+                      >
+                        0
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                    </div>
+
+                    <ul
+                      class="list-group list-group-flush collapse"
+                      :id="`day-noon-${index}`"
+                      v-if="!currentDay"
+                    >
                       <li
-                        class="list-group-item bg-dark p-0"
+                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['noon']"
                         :key="index"
                       >
-                        <input
-                          type="text"
-                          class="form-control bg-transparent text-white p-1"
-                          :value="booking"
-                          :ref="`noon-${day.id}`"
-                          required
-                        />
+                        <span> {{ booking }}</span>
+
+                        <span class="trash-teacher" @click="deleteSlotCabin(day.id, 'noon', index)">
+                          <i class="fa-solid fa-trash-can"></i>
+                        </span>
                       </li>
                     </ul>
-                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
-
-                    <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
-                      Cancel
-                    </button>
-                  </form>
-                </div>
-
-                <div
-                  class="card mb-1"
-                  v-show="
-                    this.mode === 'had' && day?.afternoon?.length > 0
-                      ? true
-                      : this.mode === 'empty' &&
-                        (!day?.afternoon?.length || day?.afternoon?.length < 4)
-                      ? true
-                      : this.mode === 'all'
-                      ? true
-                      : false
-                  "
-                >
-                  <div
-                    class="card-header bg-black text-white d-flex justify-content-between align-items-center"
-                    @click="showHideDetailBooking"
-                  >
-                    <a
-                      class="session flex-grow-1"
-                      data-bs-toggle="collapse"
-                      :href="`#day-afternoon-${index}`"
-                      role="button"
-                      aria-expanded="false"
-                      aria-controls="collapseExample"
+                    <form
+                      @submit.prevent="changeTeacher(day.id, 'noon')"
+                      v-else-if="
+                        day.date &&
+                        day.date.length >= 0 &&
+                        currentDay === day.date.slice(0, 2) &&
+                        currentSession === 'noon' &&
+                        day['noon']?.length > 0
+                      "
                     >
-                      Chiều
-                    </a>
+                      <ul class="list-group list-group-flush">
+                        <li
+                          class="list-group-item bg-dark p-0"
+                          v-for="(booking, index) in day['noon']"
+                          :key="index"
+                        >
+                          <input
+                            type="text"
+                            class="form-control bg-transparent text-white p-1"
+                            :value="booking"
+                            :ref="`noon-${day.id}`"
+                            required
+                          />
+                        </li>
+                      </ul>
+                      <button type="submit" class="btn btn-primary btn-sm">OK</button>
 
-                    <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
-                      <a
-                        class="text-light"
-                        v-if="!day?.afternoon || day?.afternoon?.length < 4"
-                        @click="showModalAddBooking2('afternoon', day.id || listDayOfMonth[index])"
-                      >
-                        <i class="fa-solid fa-plus"></i>
-                      </a>
-                      <a
-                        class="text-light"
-                        data-bs-toggle="collapse"
-                        :href="`#day-morning-${index}`"
-                        @click="setCurrentDayAndSession(day.date, 'afternoon')"
-                      >
-                        <i class="fa-solid fa-pen-to-square"></i
-                      ></a>
-                    </div>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
-                      v-if="day.afternoon?.length > 0"
-                    >
-                      {{ day.afternoon?.length }}
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
-                    <span
-                      class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
-                      v-else
-                    >
-                      0
-                      <span class="visually-hidden">slot cabin</span>
-                    </span>
+                      <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
+                        Cancel
+                      </button>
+                    </form>
                   </div>
 
-                  <ul
-                    class="list-group list-group-flush collapse"
-                    :id="`day-afternoon-${index}`"
-                    v-if="!currentDay"
-                  >
-                    <li
-                      class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
-                      v-for="(booking, index) in day['afternoon']"
-                      :key="index"
-                    >
-                      <span> {{ booking }}</span>
-
-                      <span
-                        class="trash-teacher"
-                        @click="deleteSlotCabin(day.id, 'afternoon', index)"
-                      >
-                        <i class="fa-solid fa-trash-can"></i>
-                      </span>
-                    </li>
-                  </ul>
-                  <form
-                    @submit.prevent="changeTeacher(day.id, 'afternoon')"
-                    v-else-if="
-                      day.date &&
-                      day.date.length >= 0 &&
-                      currentDay === day.date.slice(0, 2) &&
-                      currentSession === 'afternoon' &&
-                      day['afternoon']?.length > 0
+                  <div
+                    class="card mb-1"
+                    v-show="
+                      this.mode === 'had' && day?.afternoon?.length > 0
+                        ? true
+                        : this.mode === 'empty' &&
+                          (!day?.afternoon?.length || day?.afternoon?.length < 4)
+                        ? true
+                        : this.mode === 'all'
+                        ? true
+                        : false
                     "
                   >
-                    <ul class="list-group list-group-flush">
+                    <div
+                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                      @click="showHideDetailBooking"
+                    >
+                      <a
+                        class="session flex-grow-1"
+                        data-bs-toggle="collapse"
+                        :href="`#day-afternoon-${index}`"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="collapseExample"
+                      >
+                        Chiều
+                      </a>
+
+                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                        <a
+                          class="text-light"
+                          v-if="!day?.afternoon || day?.afternoon?.length < 4"
+                          @click="
+                            showModalAddBooking2('afternoon', day.id || listDayOfMonth[index])
+                          "
+                        >
+                          <i class="fa-solid fa-plus"></i>
+                        </a>
+                        <a
+                          class="text-light"
+                          data-bs-toggle="collapse"
+                          :href="`#day-morning-${index}`"
+                          @click="setCurrentDayAndSession(day.date, 'afternoon')"
+                        >
+                          <i class="fa-solid fa-pen-to-square"></i
+                        ></a>
+                      </div>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger ms-3"
+                        v-if="day.afternoon?.length > 0"
+                      >
+                        {{ day.afternoon?.length }}
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                      <span
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success ms-3"
+                        v-else
+                      >
+                        0
+                        <span class="visually-hidden">slot cabin</span>
+                      </span>
+                    </div>
+
+                    <ul
+                      class="list-group list-group-flush collapse"
+                      :id="`day-afternoon-${index}`"
+                      v-if="!currentDay"
+                    >
                       <li
-                        class="list-group-item bg-dark p-0"
+                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['afternoon']"
                         :key="index"
                       >
-                        <input
-                          type="text"
-                          class="form-control bg-transparent text-white p-1"
-                          :value="booking"
-                          :ref="`afternoon-${day.id}`"
-                          required
-                        />
+                        <span> {{ booking }}</span>
+
+                        <span
+                          class="trash-teacher"
+                          @click="deleteSlotCabin(day.id, 'afternoon', index)"
+                        >
+                          <i class="fa-solid fa-trash-can"></i>
+                        </span>
                       </li>
                     </ul>
-                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                    <form
+                      @submit.prevent="changeTeacher(day.id, 'afternoon')"
+                      v-else-if="
+                        day.date &&
+                        day.date.length >= 0 &&
+                        currentDay === day.date.slice(0, 2) &&
+                        currentSession === 'afternoon' &&
+                        day['afternoon']?.length > 0
+                      "
+                    >
+                      <ul class="list-group list-group-flush">
+                        <li
+                          class="list-group-item bg-dark p-0"
+                          v-for="(booking, index) in day['afternoon']"
+                          :key="index"
+                        >
+                          <input
+                            type="text"
+                            class="form-control bg-transparent text-white p-1"
+                            :value="booking"
+                            :ref="`afternoon-${day.id}`"
+                            required
+                          />
+                        </li>
+                      </ul>
+                      <button type="submit" class="btn btn-primary btn-sm">OK</button>
 
-                    <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
-                      Cancel
-                    </button>
-                  </form>
-                </div>
+                      <button class="btn btn-secondary btn-sm ms-1" @click="currentDay = null">
+                        Cancel
+                      </button>
+                    </form>
+                  </div>
+                </section>
               </section>
             </calendar-day-item>
           </ul>
@@ -423,6 +433,7 @@ export default {
 
   data() {
     return {
+      isLoading: false,
       currentId: null,
       months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       currentMonth: null,
@@ -506,6 +517,10 @@ export default {
 
       console.log(listDayCopy)
       return listDayCopy
+    },
+
+    hasBooking() {
+      return !this.isLoading && this.bookingsStore.hasBooking
     }
   },
 
@@ -567,12 +582,17 @@ export default {
         quantity: formData.quantity
       }
 
-      console.log(bookingData)
       this.bookingsStore.addBooking2(bookingData)
     },
 
-    loadBookingList() {
-      this.bookingsStore.loadBookingList()
+    async loadBookingList() {
+      this.isLoading = true
+      try {
+        await this.bookingsStore.loadBookingList()
+      } catch (error) {
+        console.log(error)
+      }
+      this.isLoading = false
     },
 
     async changeTeacher(id, session) {
@@ -619,7 +639,6 @@ export default {
           this.isShowToast = false
         }
         --this.toastTime
-        console.log(this.toastTime)
       }, 1000)
 
       this.toastTime = 11
@@ -642,6 +661,16 @@ export default {
 
     filterBooking(mode) {
       this.mode = mode
+    },
+
+    async refreshBookList() {
+      this.isLoading = true
+      try {
+        await this.bookingsStore.loadBookingList()
+      } catch (error) {
+        console.log(error)
+      }
+      this.isLoading = false
     }
   }
 }

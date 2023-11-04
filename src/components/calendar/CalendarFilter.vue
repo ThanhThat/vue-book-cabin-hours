@@ -44,6 +44,7 @@
           <li><a class="btn w-100" href="#" @click="filterMode('had')">Đã đặt</a></li>
         </ul>
       </div>
+      <div class="btn btn-dark border-1 border-white" @click="refresh">Refresh</div>
     </div>
   </div>
 </template>
@@ -90,6 +91,10 @@ export default {
     filterMode(mode) {
       this.filterVal = mode
       this.$emit('filter', mode)
+    },
+
+    refresh() {
+      this.$emit('refresh')
     }
   }
 }
