@@ -6,6 +6,14 @@ const authApi = {
   signIn(data) {
     const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`
     return axios.post(url, data)
+  },
+
+  refreshToken(data) {
+    const url = `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`
+
+    return axios.post(url, data, {
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 }
 

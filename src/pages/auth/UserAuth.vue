@@ -32,6 +32,8 @@ export default {
     }
   },
 
+  async create() {},
+
   computed: {
     ...mapStores(useAuthStore)
   },

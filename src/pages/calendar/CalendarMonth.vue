@@ -413,7 +413,7 @@
 <script>
 import { mapStores } from 'pinia'
 import useBookingsStore from '@/store/bookings'
-import useAuthStore from '@/store/bookings'
+import useAuthStore from '@/store/auth'
 import { formatDate } from '@/utilities'
 
 import CalendarFilter from '../../components/calendar/CalendarFilter.vue'
@@ -458,6 +458,7 @@ export default {
     this.setCurrentMonth()
     this.setCurrentYear()
     this.loadBookingList()
+    this.verifyRefreshToken()
   },
 
   computed: {
@@ -515,7 +516,6 @@ export default {
         }
       }
 
-      console.log(listDayCopy)
       return listDayCopy
     },
 
@@ -671,6 +671,16 @@ export default {
         console.log(error)
       }
       this.isLoading = false
+    },
+
+    async verifyRefreshToken() {
+      try {
+        await this.authStore.verifyRefreshToken()
+      } catch (error) {
+        localStorage.removeItem('refreshToken')
+        this.authStore.refreshToken = null
+        this.$router.push('/auth')
+      }
     }
   }
 }
