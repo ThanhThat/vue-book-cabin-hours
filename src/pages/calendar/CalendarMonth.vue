@@ -54,7 +54,10 @@
             <calendar-day-item
               v-for="(day, index) in listDayOfMonth"
               :key="index"
-              :class="{ 'd-flex justify-content-center align-items-center': isLoading }"
+              :class="{
+                'd-flex justify-content-center align-items-center': isLoading,
+                'bg-light': day.date === today
+              }"
             >
               <base-spinner v-if="isLoading"></base-spinner>
               <section v-else>
@@ -407,6 +410,8 @@
         </section>
       </div>
     </div>
+
+    <p class="text-white">{{ today }}</p>
   </section>
 </template>
 
@@ -415,6 +420,7 @@ import { mapStores } from 'pinia'
 import useBookingsStore from '@/store/bookings'
 import useAuthStore from '@/store/auth'
 import { formatDate } from '@/utilities'
+import { generateDate } from '@/utilities'
 
 import CalendarFilter from '../../components/calendar/CalendarFilter.vue'
 import CalendarWeek from '../../components/calendar/CalendarWeek.vue'
@@ -433,12 +439,16 @@ export default {
 
   data() {
     return {
+      today: generateDate(
+        new Date().getDate(),
+        new Date().getMonth() + 1,
+        new Date().getFullYear()
+      ),
       isLoading: false,
       currentId: null,
       months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       currentMonth: null,
       currentYear: null,
-      daySelected: {},
       isShowModalAddBooking: false,
       isShowModalAddBooking2: false,
       currentDay: null,
@@ -492,7 +502,9 @@ export default {
         })
 
         if (!booking) {
-          listDayCopy.push(i)
+          listDayCopy.push({
+            date: `${day}-${this.currentMonth}-${this.currentYear}`
+          })
         } else {
           listDayCopy.push(booking)
         }
@@ -515,7 +527,7 @@ export default {
           listDayCopy.push('')
         }
       }
-
+      console.log(listDayCopy)
       return listDayCopy
     },
 
