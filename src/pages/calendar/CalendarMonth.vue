@@ -56,16 +56,13 @@
               :key="index"
               :class="{
                 'd-flex justify-content-center align-items-center': isLoading,
-                'bg-light': day.date === today
+                'bg-light': day?.id === today
               }"
             >
               <base-spinner v-if="isLoading"></base-spinner>
               <section v-else>
                 <header class="header-day-item d-flex justify-content-end align-items-center mt-1">
-                  <span :class="{ 'day-item': day }" v-if="typeof day === 'object'">{{
-                    day.date.slice(0, 2)
-                  }}</span>
-                  <span :class="{ 'day-item': day }" v-else>{{ day }}</span>
+                  <span :class="{ 'day-item': day }">{{ day?.id?.slice(0, 2) }}</span>
                 </header>
 
                 <section v-show="day" class="booking-list" @click="showModalBooking">
@@ -94,7 +91,10 @@
                       >
                         Sáng
                       </a>
-                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <div
+                        class="card-header-controls me-1 d-flex gap-2 align-items-center"
+                        v-if="day.show"
+                      >
                         <a
                           class="text-light"
                           v-if="!day?.morning || day?.morning?.length < 4"
@@ -141,6 +141,7 @@
                         <span
                           class="trash-teacher"
                           @click="deleteSlotCabin(day.id, 'morning', index)"
+                          v-if="day.show"
                         >
                           <i class="fa-solid fa-trash-can"></i>
                         </span>
@@ -205,7 +206,10 @@
                         Trưa
                       </a>
 
-                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <div
+                        class="card-header-controls me-1 d-flex gap-2 align-items-center"
+                        v-if="day.show"
+                      >
                         <a
                           class="text-light"
                           v-if="!day?.noon || day?.noon?.length < 4"
@@ -250,7 +254,11 @@
                       >
                         <span> {{ booking }}</span>
 
-                        <span class="trash-teacher" @click="deleteSlotCabin(day.id, 'noon', index)">
+                        <span
+                          class="trash-teacher"
+                          @click="deleteSlotCabin(day.id, 'noon', index)"
+                          v-if="day.show"
+                        >
                           <i class="fa-solid fa-trash-can"></i>
                         </span>
                       </li>
@@ -316,7 +324,10 @@
                         Chiều
                       </a>
 
-                      <div class="card-header-controls me-1 d-flex gap-2 align-items-center">
+                      <div
+                        class="card-header-controls me-1 d-flex gap-2 align-items-center"
+                        v-if="day.show"
+                      >
                         <a
                           class="text-light"
                           v-if="!day?.afternoon || day?.afternoon?.length < 4"
@@ -366,6 +377,7 @@
                         <span
                           class="trash-teacher"
                           @click="deleteSlotCabin(day.id, 'afternoon', index)"
+                          v-if="day.show"
                         >
                           <i class="fa-solid fa-trash-can"></i>
                         </span>
@@ -421,6 +433,7 @@ import useBookingsStore from '@/store/bookings'
 import useAuthStore from '@/store/auth'
 import { formatDate } from '@/utilities'
 import { generateDate } from '@/utilities'
+import { compareDate } from '@/utilities'
 
 import CalendarFilter from '../../components/calendar/CalendarFilter.vue'
 import CalendarWeek from '../../components/calendar/CalendarWeek.vue'
@@ -503,7 +516,7 @@ export default {
 
         if (!booking) {
           listDayCopy.push({
-            date: `${day}-${this.currentMonth}-${this.currentYear}`
+            id: `${day}-${this.currentMonth}-${this.currentYear}`
           })
         } else {
           listDayCopy.push(booking)
@@ -527,7 +540,21 @@ export default {
           listDayCopy.push('')
         }
       }
-      console.log(listDayCopy)
+
+      for (let i = 0; i < this.endDayOfMonth; i++) {
+        if (typeof listDayCopy[i] === 'object') {
+          // console.log('today: ', listDayCopy[i].id.split('-'))
+          // console.log(compareDate(this.today, listDayCopy[i].id))
+          if (compareDate(this.today, listDayCopy[i].id)) {
+            listDayCopy[i]['show'] = false
+            // console.log(listDayCopy[i])
+          } else {
+            listDayCopy[i]['show'] = true
+          }
+        }
+      }
+
+      // console.log(listDayCopy)
       return listDayCopy
     },
 
