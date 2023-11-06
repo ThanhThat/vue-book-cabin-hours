@@ -56,7 +56,7 @@
               :key="index"
               :class="{
                 'd-flex justify-content-center align-items-center': isLoading,
-                'bg-light': day?.id === today
+                'bg-primary': day?.id === today
               }"
             >
               <base-spinner v-if="isLoading"></base-spinner>
@@ -541,7 +541,7 @@ export default {
         }
       }
 
-      for (let i = 0; i < this.endDayOfMonth; i++) {
+      for (let i = 0; i < listDayCopy.length; i++) {
         if (typeof listDayCopy[i] === 'object') {
           // console.log('today: ', listDayCopy[i].id.split('-'))
           // console.log(compareDate(this.today, listDayCopy[i].id))
