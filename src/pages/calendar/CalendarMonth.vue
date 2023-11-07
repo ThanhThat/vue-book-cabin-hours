@@ -1,5 +1,5 @@
 <template>
-  <section class="container calendar">
+  <section id="calendar" class="container calendar">
     <!-- add book cabin 1 -->
     <base-modal
       title="Đăng ký học cabin"
@@ -48,7 +48,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <section class="calendar-content mt-3 bg-dark">
+        <section class="calendar-content mt-3 bg-transparent">
           <calendar-week></calendar-week>
           <ul class="calendar-day-list mt-0">
             <calendar-day-item
@@ -56,7 +56,7 @@
               :key="index"
               :class="{
                 'd-flex justify-content-center align-items-center': isLoading,
-                'bg-primary': day?.id === today
+                'day-active': day?.id === today
               }"
             >
               <base-spinner v-if="isLoading"></base-spinner>
@@ -79,7 +79,7 @@
                     "
                   >
                     <div
-                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                      class="card-header bg-dark-4 text-white d-flex justify-content-between align-items-center"
                     >
                       <a
                         class="session flex-grow-1"
@@ -133,7 +133,7 @@
                       v-if="!currentDay"
                     >
                       <li
-                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
+                        class="list-group-item bg-dark-2 p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['morning']"
                         :key="index"
                       >
@@ -159,7 +159,7 @@
                     >
                       <ul class="list-group list-group-flush">
                         <li
-                          class="list-group-item bg-dark p-0"
+                          class="list-group-item bg-dark-2 p-0"
                           v-for="(booking, index) in day['morning']"
                           :key="index"
                         >
@@ -193,7 +193,7 @@
                     "
                   >
                     <div
-                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                      class="card-header bg-dark-4 text-white d-flex justify-content-between align-items-center"
                     >
                       <a
                         class="session flex-grow-1"
@@ -248,7 +248,7 @@
                       v-if="!currentDay"
                     >
                       <li
-                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
+                        class="list-group-item bg-dark-2 p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['noon']"
                         :key="index"
                       >
@@ -275,7 +275,7 @@
                     >
                       <ul class="list-group list-group-flush">
                         <li
-                          class="list-group-item bg-dark p-0"
+                          class="list-group-item bg-dark-2 p-0"
                           v-for="(booking, index) in day['noon']"
                           :key="index"
                         >
@@ -310,7 +310,7 @@
                     "
                   >
                     <div
-                      class="card-header bg-black text-white d-flex justify-content-between align-items-center"
+                      class="card-header bg-dark-4 text-white d-flex justify-content-between align-items-center"
                       @click="showHideDetailBooking"
                     >
                       <a
@@ -368,7 +368,7 @@
                       v-if="!currentDay"
                     >
                       <li
-                        class="list-group-item bg-dark p-1 text-white d-flex justify-content-between ps-2 pe-2"
+                        class="list-group-item bg-dark-2 p-1 text-white d-flex justify-content-between ps-2 pe-2"
                         v-for="(booking, index) in day['afternoon']"
                         :key="index"
                       >
@@ -395,7 +395,7 @@
                     >
                       <ul class="list-group list-group-flush">
                         <li
-                          class="list-group-item bg-dark p-0"
+                          class="list-group-item bg-dark-2 p-0"
                           v-for="(booking, index) in day['afternoon']"
                           :key="index"
                         >
@@ -769,7 +769,7 @@ export default {
 }
 
 .card {
-  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.8);
   border: 0.5px solid #fff;
 
   &-header {
@@ -794,6 +794,22 @@ export default {
   input {
     border: none;
   }
+}
+
+.bg-dark-4 {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.bg-dark-2 {
+  background-color: rgba(147, 142, 142, 0.01);
+}
+
+.bg-dark-8 {
+  background-color: rgba(211, 200, 200, 0.8);
+}
+
+.day-active {
+  background: rgba(45, 7, 234, 0.3);
 }
 
 .trash-teacher {
