@@ -71,7 +71,8 @@
                     v-show="
                       this.mode === 'had' && day?.morning?.length > 0
                         ? true
-                        : this.mode === 'empty' && (!day?.noon?.length || day?.noon?.length < 4)
+                        : this.mode === 'empty' &&
+                          (!day?.morning?.length || day?.morning?.length < 4)
                         ? true
                         : this.mode === 'all'
                         ? true
