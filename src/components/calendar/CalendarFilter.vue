@@ -22,9 +22,11 @@
       </div>
 
       <div class="btn-group">
+        <button class="btn btn-dark border-white border-1" @click="decrease">-</button>
         <button type="button" class="btn btn-dark border-white border-1">
           năm {{ currentYear }}
         </button>
+        <button class="btn btn-dark border-white border-1" @click="ascending">+</button>
       </div>
 
       <button class="btn btn-dark border-1 border-white" @click="openModalAddBooking()">Add</button>
@@ -95,6 +97,14 @@ export default {
 
     refresh() {
       this.$emit('refresh')
+    },
+
+    ascending() {
+      this.$emit('ascending')
+    },
+
+    decrease() {
+      this.$emit('decrease')
     }
   }
 }

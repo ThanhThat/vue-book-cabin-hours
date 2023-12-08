@@ -42,6 +42,8 @@
             @open="openModalAddBooking"
             @filter="filterBooking"
             @refresh="refreshBookList"
+            @ascending="onAscending"
+            @decrease="onDecrease"
           ></calendar-filter>
         </header>
       </div>
@@ -721,6 +723,14 @@ export default {
         this.authStore.refreshToken = null
         this.$router.push('/auth')
       }
+    },
+
+    onDecrease() {
+      this.currentYear--
+    },
+
+    onAscending() {
+      this.currentYear++
     }
   }
 }
