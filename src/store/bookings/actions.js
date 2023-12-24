@@ -70,7 +70,7 @@ export default {
   },
 
   async addBooking2(payload) {
-    const { id, month, year, session, teacher, quantity } = payload
+    let { id, month, year, session, teacher, quantity } = payload
     let bookingItem = this.bookingList.find((item) => item.id === id)
     let slotEmpty = 4
 
@@ -93,8 +93,6 @@ export default {
         bookingItem[session].push(teacher)
       }
 
-      console.log(bookingItem)
-
       const response = await bookingsApi.update(bookingItem)
 
       if (response.status !== 200) {
@@ -104,7 +102,11 @@ export default {
     }
 
     if (!bookingItem) {
-      const generateId = generateDate(id, month, year)
+      const day = id.split('-')[0]
+      month = month < 10 ? `0${month}` : month
+      console.log(month)
+
+      const generateId = generateDate(day, month, year)
       bookingItem = {
         id: generateId,
         date: generateId,
@@ -114,8 +116,6 @@ export default {
       for (let i = 0; i < quantity; i++) {
         bookingItem[session].push(teacher)
       }
-
-      console.log(bookingItem)
 
       this.bookingList.push(bookingItem)
 

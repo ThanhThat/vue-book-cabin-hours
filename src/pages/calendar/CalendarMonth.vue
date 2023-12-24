@@ -505,11 +505,7 @@ export default {
     listDayOfMonth() {
       const listDayCopy = []
       for (let i = 1; i <= this.endDayOfMonth; i++) {
-        let day = i.toString()
-
-        if (i < 10) {
-          day = 0 + day
-        }
+        const day = i
 
         const date = formatDate(`${this.currentYear}-${this.currentMonth}-${day}`)
 
@@ -519,7 +515,7 @@ export default {
 
         if (!booking) {
           listDayCopy.push({
-            id: `${day}-${this.currentMonth}-${this.currentYear}`
+            id: generateDate(day, this.currentMonth, this.currentYear)
           })
         } else {
           listDayCopy.push(booking)
@@ -556,6 +552,8 @@ export default {
           }
         }
       }
+
+      console.log(listDayCopy)
 
       // console.log(listDayCopy)
       return listDayCopy
@@ -725,12 +723,15 @@ export default {
       }
     },
 
-    onDecrease() {
-      this.currentYear--
+    onDecrease(currentYear) {
+      this.currentYear = currentYear - 1
+      console.log(this.currentYear)
     },
 
-    onAscending() {
-      this.currentYear++
+    onAscending(currentYear) {
+      this.currentYear = currentYear + 1
+      console.log(this.currentYear)
+      console.log(this.bookingList)
     }
   }
 }
