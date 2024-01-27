@@ -509,13 +509,15 @@ export default {
 
         const date = formatDate(`${this.currentYear}-${this.currentMonth}-${day}`)
 
+        console.log(date)
+
         const booking = this.bookingsStore.bookingList.find((booking) => {
           return booking.id === date
         })
 
         if (!booking) {
           listDayCopy.push({
-            id: generateDate(day, this.currentMonth, this.currentYear)
+            id: date
           })
         } else {
           listDayCopy.push(booking)
@@ -552,6 +554,8 @@ export default {
           }
         }
       }
+
+      console.log(this.currentMonth)
 
       console.log(listDayCopy)
 
