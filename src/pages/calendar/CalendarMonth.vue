@@ -487,6 +487,12 @@ export default {
     this.verifyRefreshToken()
   },
 
+  mounted() {
+    const today1 = this.today.split('-')
+    const today2 = formatDate(today1[2] + '-' + today1[1] + '-' + today1[0])
+    this.today = today2
+  },
+
   computed: {
     ...mapStores(useBookingsStore, useAuthStore),
 
@@ -508,8 +514,6 @@ export default {
         const day = i
 
         const date = formatDate(`${this.currentYear}-${this.currentMonth}-${day}`)
-
-        console.log(date)
 
         const booking = this.bookingsStore.bookingList.find((booking) => {
           return booking.id === date
@@ -544,22 +548,13 @@ export default {
 
       for (let i = 0; i < listDayCopy.length; i++) {
         if (typeof listDayCopy[i] === 'object') {
-          // console.log('today: ', listDayCopy[i].id.split('-'))
-          // console.log(compareDate(this.today, listDayCopy[i].id))
           if (compareDate(this.today, listDayCopy[i].id)) {
             listDayCopy[i]['show'] = false
-            // console.log(listDayCopy[i])
           } else {
             listDayCopy[i]['show'] = true
           }
         }
       }
-
-      console.log(this.currentMonth)
-
-      console.log(listDayCopy)
-
-      // console.log(listDayCopy)
       return listDayCopy
     },
 
@@ -712,7 +707,7 @@ export default {
       try {
         await this.bookingsStore.loadBookingList()
       } catch (error) {
-        console.log(error)
+        throw new Error(error)
       }
       this.isLoading = false
     },
@@ -729,13 +724,10 @@ export default {
 
     onDecrease(currentYear) {
       this.currentYear = currentYear - 1
-      console.log(this.currentYear)
     },
 
     onAscending(currentYear) {
       this.currentYear = currentYear + 1
-      console.log(this.currentYear)
-      console.log(this.bookingList)
     }
   }
 }
