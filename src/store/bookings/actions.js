@@ -3,6 +3,7 @@ import { formatDate, generateDate } from '../../utilities'
 
 export default {
   async addBooking(payload) {
+    await this.loadBookingList()
     const date = formatDate(payload.date)
     const session = payload.session
 
@@ -70,6 +71,7 @@ export default {
   },
 
   async addBooking2(payload) {
+    await this.loadBookingList()
     let { id, month, year, session, teacher, quantity } = payload
     let bookingItem = this.bookingList.find((item) => item.id === id)
     let slotEmpty = 4

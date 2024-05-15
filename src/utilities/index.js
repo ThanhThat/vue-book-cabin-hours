@@ -1,8 +1,12 @@
 export const formatDate = (input) => {
-  const datePart = input.match(/\d+/g),
-    year = datePart[0], // get only two digits
-    month = datePart[1] < 10 ? `0${datePart[1]}` : datePart[1],
-    day = datePart[2] < 10 ? `0${datePart[2]}` : datePart[2]
+  const datePart = input.match(/\d+/g)
+
+  const dayNumber = Number(datePart[2])
+  const monthNumber = Number(datePart[1])
+
+  const year = datePart[0] // get only two digits
+  const month = monthNumber < 10 ? `0${monthNumber}` : datePart[1]
+  const day = dayNumber < 10 ? `0${dayNumber}` : datePart[2]
   return day + '-' + month + '-' + year
 }
 

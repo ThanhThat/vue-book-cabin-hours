@@ -488,8 +488,12 @@ export default {
   },
 
   mounted() {
+    // format today from 8-4-2024 to 08-04-2024
     const today1 = this.today.split('-')
-    const today2 = formatDate(today1[2] + '-' + today1[1] + '-' + today1[0])
+    const year = today1[2]
+    const month = today1[1]
+    const day = today1[0]
+    const today2 = formatDate(year + '-' + month + '-' + day)
     this.today = today2
   },
 
@@ -555,6 +559,7 @@ export default {
           }
         }
       }
+
       return listDayCopy
     },
 
@@ -588,6 +593,7 @@ export default {
     },
 
     async addBooking(bookingData) {
+      await this.refreshBookList()
       try {
         await this.bookingsStore.addBooking(bookingData)
         this.toastTitle = 'Thành công'
@@ -612,6 +618,7 @@ export default {
     },
 
     async addBooking2(formData) {
+      await this.refreshBookList()
       const bookingData = {
         id: this.currentId,
         month: this.currentMonth,
@@ -621,7 +628,11 @@ export default {
         quantity: formData.quantity
       }
 
-      this.bookingsStore.addBooking2(bookingData)
+      try {
+        await this.bookingsStore.addBooking2(bookingData)
+      } catch (error) {
+        alert(error.message)
+      }
     },
 
     async loadBookingList() {
