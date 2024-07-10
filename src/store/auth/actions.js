@@ -24,8 +24,6 @@ export default {
     }
     const response = await authApi.refreshToken(data)
 
-    console.log(response)
-
     if (response.status !== 200) {
       localStorage.removeItem('refreshToken')
       this.refreshToken = null

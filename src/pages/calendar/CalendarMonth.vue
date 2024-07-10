@@ -64,7 +64,9 @@
               <base-spinner v-if="isLoading"></base-spinner>
               <section v-else>
                 <header class="header-day-item d-flex justify-content-end align-items-center mt-1">
-                  <span :class="{ 'day-item': day }">{{ day?.id?.slice(0, 2) }}</span>
+                  <span :class="{ 'day-item': day }"
+                    >{{ day?.id?.slice(0, 2) }} / {{ day?.id?.split('-')[1] }}</span
+                  >
                 </header>
 
                 <section v-show="day" class="booking-list" @click="showModalBooking">
@@ -767,8 +769,8 @@ export default {
   background-color: #ad1313;
   color: #fff;
   display: block;
-  border-radius: 50%;
-  width: 32px;
+  border-radius: 20%;
+  width: 64px;
   height: 32px;
   text-align: center;
   line-height: 32px;
